@@ -12,6 +12,8 @@ ENV PACKAGES="\
   bash \
   ca-certificates \
   python3 \
+  git \
+  openssh \
 "
 
 RUN echo \
@@ -41,6 +43,15 @@ RUN echo \
   && easy_install pip \
   && pip install --upgrade pip \
   && if [[ ! -e /usr/bin/pip ]]; then ln -sf /usr/bin/pip3 /usr/bin/pip; fi \
+  && pip install boto3 \
+  && mkdir ~/.aws \
+  && touch ~/.aws/config \
+  && echo '[default]' >> ~/.aws/config \
+  && echo 'region = eu-west-1' >> ~/.aws/config \
+  && echo 'output = json' >> ~/.aws/config \
+  && mkdir ~/.ssh \
+  && touch ~/.ssh/known_hosts \
+  && ssh-keyscan github.com >> ~/.ssh/known_hosts \
   && echo
 
 # Copy in the entrypoint script -- this installs prerequisites on container start.
