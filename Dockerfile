@@ -56,6 +56,7 @@ RUN echo \
 
 # Copy in the entrypoint script -- this installs prerequisites on container start.
 COPY entrypoint.sh /entrypoint.sh
+COPY pipeline.py /nu-ecsplatform/pipeline.py
 
 # These packages are not installed immediately, but are added at runtime or ONBUILD to shrink the image as much as possible. Notes:
 #   * build-base: used so we include the basic development packages (gcc)
