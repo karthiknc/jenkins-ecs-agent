@@ -10,7 +10,10 @@ class Pipeline:
     ENV_VARS = ['WORKFLOW', 'BUILD_ENV', 'SITE_REPO', 'SITE_BRANCH', 'GITHUB_TOKEN']
 
     def __init__(self):
-        self.client = boto3.client('codebuild')
+        profile = 'dev'
+        if os.environ['WORKFLOW'] in ('staging', 'prod'):
+            profile = 'prod'
+        self.client = boto3.Session(profile_name=profile).client('codebuild')
         self.build_kwargs = {}
 
     def prepare(self):
