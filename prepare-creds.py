@@ -11,15 +11,14 @@ def prepare_aws():
     creds = json.loads(parameter['Parameter']['Value'])
 
     credsfile = open('/root/.aws/creadentials', 'w')
-    credsfile.write('[default]\n')
+    credsfile.write('[dev]\n')
     credsfile.write('aws_access_key_id={}\n'.format(creds['dev']['key']))
     credsfile.write('aws_secret_access_key={}\n'.format(creds['dev']['secret']))
-    credsfile.write('\n[dev]\n')
-    credsfile.write('aws_access_key_id={}\n'.format(creds['dev']['key']))
-    credsfile.write('aws_secret_access_key={}\n'.format(creds['dev']['secret']))
+    credsfile.write('region=eu-west-1\n')
     credsfile.write('\n[prod]\n')
     credsfile.write('aws_access_key_id={}\n'.format(creds['prod']['key']))
     credsfile.write('aws_secret_access_key={}\n'.format(creds['prod']['secret']))
+    credsfile.write('region=eu-west-1\n')
     credsfile.close()
 
 
