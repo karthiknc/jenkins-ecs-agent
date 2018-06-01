@@ -90,10 +90,10 @@ class Pipeline:
                 bucket_key = '{}/{}'.format(arn_split[1], artifact)
                 s3.Bucket(bucket).download_file(bucket_key, artifact)
         except ClientError:
-            print("Could not fetch artifact from s3 bucket.")
+            print('Could not fetch artifact from s3 bucket.')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     pl = Pipeline()
     pl.prepare()
     bid = pl.run_build()
