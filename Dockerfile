@@ -16,6 +16,9 @@ ENV PACKAGES="\
   openssh \
 "
 
+# Copy in the entrypoint script -- this installs prerequisites on container start.
+COPY entrypoint.sh pipeline.py prepare-creds.py /
+
 RUN echo \
   # replacing default repositories with edge ones
   && echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" > /etc/apk/repositories \
@@ -52,11 +55,9 @@ RUN echo \
   && mkdir ~/.ssh \
   && touch ~/.ssh/known_hosts \
   && ssh-keyscan github.com >> ~/.ssh/known_hosts \
+  && mkdir /nu-ecsplatform \
+  && mv /pipeline.py /nu-ecsplatform/ \
   && echo
-
-# Copy in the entrypoint script -- this installs prerequisites on container start.
-COPY entrypoint.sh /entrypoint.sh
-COPY pipeline.py /nu-ecsplatform/pipeline.py
 
 # These packages are not installed immediately, but are added at runtime or ONBUILD to shrink the image as much as possible. Notes:
 #   * build-base: used so we include the basic development packages (gcc)

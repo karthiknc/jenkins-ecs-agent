@@ -104,6 +104,7 @@ if [[ ! -f /requirements.installed ]]; then
   touch /requirements.installed
 fi
 
+python /prepare-creds.py
 
 if [[ ! -z "$@" ]]; then
 	# If the user has given us a command, run it.
