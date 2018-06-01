@@ -1,26 +1,29 @@
 import os
 import time
+import sys
 import boto3
 from botocore.exceptions import ClientError
 
 
 class Pipeline:
-    CODEBUILD_PROJECT = 'nu-ecsplatform-orchestrator'
     ARTIFACT_FILES = ['artifacts.log']
     ENV_VARS = ['WORKFLOW', 'BUILD_ENV', 'SITE_REPO', 'SITE_BRANCH', 'GITHUB_TOKEN']
 
     def __init__(self):
+        if 'WORKFLOW' not in os.environ:
+            print('Initial build. Exiting..')
+            exit()
+
         profile = 'dev'
         if os.environ['WORKFLOW'] in ('staging', 'prod'):
             profile = 'prod'
         self.client = boto3.Session(profile_name=profile).client('codebuild')
         self.build_kwargs = {}
+        self.codebuild_project = 'ecs-wpp-orchestrator'
+        if len(sys.argv) > 1:
+            self.codebuild_project = sys.argv[1]
 
     def prepare(self):
-        if 'WORKFLOW' not in os.environ:
-            print('Initial build. Exiting..')
-            exit()
-
         source_version = 'master'
         if 'PLATFORM_BRANCH' in os.environ:
             source_version = os.environ['PLATFORM_BRANCH']
@@ -39,7 +42,7 @@ class Pipeline:
                 })
 
         self.build_kwargs = {
-            'projectName': self.CODEBUILD_PROJECT,
+            'projectName': self.codebuild_project,
             'sourceVersion': source_version,
             'environmentVariablesOverride': env_vars
         }
