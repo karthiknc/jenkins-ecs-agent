@@ -1,6 +1,7 @@
 import os
 import time
 import sys
+import subprocess
 import boto3
 from botocore.exceptions import ClientError
 
@@ -13,6 +14,8 @@ class Pipeline:
         if 'WORKFLOW' not in os.environ:
             print('Initial build. Exiting..')
             exit()
+
+        subprocess.call(['python', '/prepare-creds.py'])
 
         profile = 'dev'
         if os.environ['WORKFLOW'] in ('staging', 'prod'):
@@ -35,7 +38,7 @@ class Pipeline:
                     'name': env_var,
                     'value': os.environ[env_var]
                 })
-            if env_var == 'SITE_REPO':
+            if env_var == 'SITE_REPO' and 'SITE_REPO' in os.environ:
                 env_vars.append({
                     'name': 'SITE_REPO',
                     'value': os.environ['GIT_URL'].split('/')[-1].split('.')[0]
