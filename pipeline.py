@@ -38,7 +38,7 @@ class Pipeline:
                     'name': env_var,
                     'value': os.environ[env_var]
                 })
-            if env_var == 'SITE_REPO' and 'SITE_REPO' in os.environ:
+            if env_var == 'SITE_REPO' and 'GIT_URL' in os.environ:
                 env_vars.append({
                     'name': 'SITE_REPO',
                     'value': os.environ['GIT_URL'].split('/')[-1].split('.')[0]
