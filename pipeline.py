@@ -8,7 +8,8 @@ from botocore.exceptions import ClientError
 
 class Pipeline:
     ARTIFACT_FILES = ['artifacts.log']
-    ENV_VARS = ['WORKFLOW', 'BUILD_ENV', 'SITE_REPO', 'SITE_BRANCH', 'GITHUB_TOKEN']
+    ENV_VARS = ['WORKFLOW', 'BUILD_ENV', 'SITE_REPO', 'SITE_BRANCH',
+                'GITHUB_TOKEN', 'DEPENDENCY_TAG', 'PLATFORM_BRANCH']
 
     def __init__(self):
         if 'WORKFLOW' not in os.environ:
@@ -17,9 +18,7 @@ class Pipeline:
 
         subprocess.call(['python', '/prepare-creds.py'])
 
-        profile = 'dev'
-        if os.environ['WORKFLOW'] in ('staging', 'prod'):
-            profile = 'prod'
+        profile = 'prod' if os.environ['BUILD_ENV'] in ('staging', 'prod') else 'dev'
         self.client = boto3.Session(profile_name=profile).client('codebuild')
         self.build_kwargs = {}
         self.codebuild_project = 'ecs-wpp-orchestrator'
@@ -27,10 +26,7 @@ class Pipeline:
             self.codebuild_project = sys.argv[1]
 
     def prepare(self):
-        source_version = 'master'
-        if 'PLATFORM_BRANCH' in os.environ:
-            source_version = os.environ['PLATFORM_BRANCH']
-
+        source_version = os.environ['PLATFORM_BRANCH'] if 'PLATFORM_BRANCH' in os.environ else 'master'
         env_vars = []
         for env_var in self.ENV_VARS:
             if env_var in os.environ:
