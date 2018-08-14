@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError
 
 
 class Pipeline:
-    ARTIFACT_FILES = ['artifacts.log']
+    ARTIFACT_FILES = ['orchestrator.log']
     ENV_VARS = ['WORKFLOW', 'BUILD_ENV', 'SITE_REPO', 'SITE_BRANCH',
                 'GITHUB_TOKEN', 'DEPENDENCY_TAG', 'PLATFORM_BRANCH']
 
@@ -16,14 +16,29 @@ class Pipeline:
             print('Initial build. Exiting..')
             exit()
 
-        subprocess.call(['python', '/prepare-creds.py'])
-
         profile = 'prod' if os.environ['BUILD_ENV'] in ('staging', 'prod') else 'dev'
-        self.client = boto3.Session(profile_name=profile).client('codebuild')
+        self.client = self._get_codebuild_client(profile)
         self.build_kwargs = {}
         self.codebuild_project = 'ecs-wpp-orchestrator'
         if len(sys.argv) > 1:
             self.codebuild_project = sys.argv[1]
+
+    def _get_codebuild_client(self, profile):
+        roles = {
+            'dev': 'arn:aws:iam::709143057981:role/ecsCdRole',
+            'prod': 'arn:aws:iam::731530244584:role/ecsCDRole'
+        }
+        sts = boto3.client('sts')
+        credentials = sts.assume_role(
+            RoleArn=roles[profile],
+            RoleSessionName='ecs-cd-session'
+        )['Credentials']
+        session = boto3.session.Session(
+            aws_access_key_id=credentials['AccessKeyId'],
+            aws_secret_access_key=credentials['SecretAccessKey'],
+            aws_session_token=credentials['SessionToken']
+        )
+        return session.client('codebuild')
 
     def prepare(self):
         source_version = os.environ['PLATFORM_BRANCH'] if 'PLATFORM_BRANCH' in os.environ else 'master'
