@@ -104,6 +104,8 @@ if [[ ! -f /requirements.installed ]]; then
   touch /requirements.installed
 fi
 
+export PYTHONUNBUFFERED=1
+
 if [[ ! -z "$@" ]]; then
 	# If the user has given us a command, run it.
 	$@
