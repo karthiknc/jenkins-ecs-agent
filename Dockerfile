@@ -14,7 +14,7 @@ ENV PACKAGES="\
   python3 \
   git \
   openssh \
-"
+  " PYTHONUNBUFFERED=1
 
 # Copy in the entrypoint script -- this installs prerequisites on container start.
 COPY entrypoint.sh pipeline.py prepare-creds.py /
@@ -64,15 +64,15 @@ RUN echo \
 #   * linux-headers: commonly needed, and an unusual package name from Alpine.
 #   * python-dev: are used for gevent e.g.
 #   * py-pip: provides pip, not needed once the software is built
-ENV BUILD_PACKAGES="\
-  build-base \
-  linux-headers \
-  python3-dev \
-"
+# ENV BUILD_PACKAGES="\
+#   build-base \
+#   linux-headers \
+#   python3-dev \
+# "
 
 # This script installs APK and Pip prerequisites on container start, or ONBUILD. Notes:
 #   * Reads the -a flags and /apk-requirements.txt for install requests
 #   * Reads the -b flags and /build-requirements.txt for build packages -- removed when build is complete
 #   * Reads the -p flags and /requirements.txt for Pip packages
 #   * Reads the -r flag to specify a different file path for /requirements.txt
-ENTRYPOINT ["/usr/bin/dumb-init", "bash", "/entrypoint.sh"]
+# ENTRYPOINT ["/usr/bin/dumb-init", "bash", "/entrypoint.sh"]
