@@ -31,7 +31,7 @@ class Pipeline:
         sts = boto3.client('sts')
         credentials = sts.assume_role(
             RoleArn=roles[profile],
-            RoleSessionName='ecs-cd-session'
+            RoleSessionName='jenkins'
         )['Credentials']
         session = boto3.session.Session(
             aws_access_key_id=credentials['AccessKeyId'],
