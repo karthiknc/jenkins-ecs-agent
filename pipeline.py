@@ -1,7 +1,6 @@
 import os
 import time
 import sys
-import subprocess
 import boto3
 from botocore.exceptions import ClientError
 
@@ -16,6 +15,7 @@ class Pipeline:
             print('Initial build. Exiting..')
             exit()
 
+        self.session = None
         profile = 'prod' if os.environ['BUILD_ENV'] in ('staging', 'prod') else 'dev'
         self.client = self._get_codebuild_client(profile)
         self.build_kwargs = {}
@@ -33,12 +33,12 @@ class Pipeline:
             RoleArn=roles[profile],
             RoleSessionName='jenkins'
         )['Credentials']
-        session = boto3.session.Session(
+        self.session = boto3.session.Session(
             aws_access_key_id=credentials['AccessKeyId'],
             aws_secret_access_key=credentials['SecretAccessKey'],
             aws_session_token=credentials['SessionToken']
         )
-        return session.client('codebuild')
+        return self.session.client('codebuild')
 
     def prepare(self):
         source_version = os.environ['PLATFORM_BRANCH'] if 'PLATFORM_BRANCH' in os.environ else 'master'
@@ -99,13 +99,14 @@ class Pipeline:
         arn = self.client.batch_get_builds(ids=[build_id])['builds'][0]['artifacts']['location']
         arn_split = arn.split('/', 1)
         bucket = arn_split[0].split(':::')[-1]
-        s3 = boto3.resource('s3')
+        s3 = self.session.resource('s3')
 
         try:
             print('Fetching artifact from {}'.format(arn))
             for artifact in self.ARTIFACT_FILES:
                 bucket_key = '{}/{}'.format(arn_split[1], artifact)
                 s3.Bucket(bucket).download_file(bucket_key, artifact)
+                print('Fetched "{}" successfully'.format(artifact))
         except ClientError:
             print('Could not fetch artifact from s3 bucket.')
 
