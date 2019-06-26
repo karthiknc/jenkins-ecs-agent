@@ -25,8 +25,8 @@ class Pipeline:
 
     def _get_codebuild_client(self, profile):
         roles = {
-            'dev': 'arn:aws:iam::709143057981:role/ecsCdRole',
-            'prod': 'arn:aws:iam::731530244584:role/ecsCDRole'
+            'dev': 'arn:aws:iam::709143057981:role/CloudFusionCDRole',
+            'prod': 'arn:aws:iam::731530244584:role/CloudFusionCDRole'
         }
         sts = boto3.client('sts')
         credentials = sts.assume_role(
