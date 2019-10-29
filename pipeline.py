@@ -43,7 +43,7 @@ class Pipeline:
             os.environ['PLATFORM_BRANCH'] = 'master'
 
         if 'SITE_BRANCH' not in os.environ:
-            os.environ['SITE_BRANCH'] = 'master'
+            os.environ['SITE_BRANCH'] = os.environ['CIRCLE_BRANCH']
 
     def _get_codebuild_client(self, profile):
         roles = {
