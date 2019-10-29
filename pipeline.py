@@ -104,6 +104,10 @@ class Pipeline:
     def run_build(self):
         print('Build starting..')
 
+        print('with following kwargs:\n\t')
+        from pprint import pprint
+        pprint(self.build_kwargs)
+
         if os.environ['BUILD_ENV'] == 'prod':
             print('Please trigger the build manually for production environment.')
             return False
