@@ -2,6 +2,7 @@ import os
 import time
 import sys
 import boto3
+from pprint import pprint
 from botocore.exceptions import ClientError, NoCredentialsError
 
 
@@ -105,7 +106,6 @@ class Pipeline:
         print('Build starting..')
 
         print('with following kwargs:\n\t')
-        from pprint import pprint
         pprint(self.build_kwargs)
 
         if os.environ['BUILD_ENV'] == 'prod':
@@ -118,8 +118,10 @@ class Pipeline:
 
         if self.get_build_status(build_id):
             print('Build Success')
+            pl.manage_artifacts(build_id)
             return build_id
         else:
+            pl.manage_artifacts(build_id)
             raise Exception('Build failed. build_id: {}'.format(build_id))
 
     def get_build_status(self, build_id):
@@ -155,6 +157,12 @@ class Pipeline:
                 bucket_key = '{}/{}'.format(arn_split[1], artifact)
                 s3.Bucket(bucket).download_file(bucket_key, artifact)
                 print('Fetched "{}" successfully'.format(artifact))
+
+                try:
+                    os.makedirs('/tmp/logs', exist_ok=True)
+                    os.system('cp ./*.log /tmp/logs')
+                except OSError:
+                    print('Logs in /tmp/logs failed.')
         except ClientError:
             print('Could not fetch artifact from s3 bucket.')
 
@@ -163,5 +171,3 @@ if __name__ == '__main__':
     pl = Pipeline()
     pl.prepare()
     bid = pl.run_build()
-    if bid:
-        pl.manage_artifacts(bid)
