@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError, NoCredentialsError
 
 
 class Pipeline:
-    ARTIFACT_FILES = ['orchestrator.log']
+    ARTIFACT_FILES = ['orchestrator.log', 'site_build.log']
     ENV_VARS = ['WORKFLOW', 'BUILD_ENV', 'SITE_REPO', 'SITE_BRANCH',
                 'GITHUB_TOKEN', 'DEPENDENCY_TAG', 'PLATFORM_BRANCH', 'BUILD_NUMBER']
 
@@ -158,11 +158,11 @@ class Pipeline:
                 s3.Bucket(bucket).download_file(bucket_key, artifact)
                 print('Fetched "{}" successfully'.format(artifact))
 
-                try:
-                    os.makedirs('/tmp/logs', exist_ok=True)
-                    os.system('cp ./*.log /tmp/logs')
-                except OSError:
-                    print('Logs in /tmp/logs failed.')
+            try:
+                os.makedirs('/tmp/logs', exist_ok=True)
+                os.system('cp ./*.log /tmp/logs')
+            except OSError:
+                print('Logs in /tmp/logs failed.')
         except ClientError:
             print('Could not fetch artifact from s3 bucket.')
 
