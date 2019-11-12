@@ -35,7 +35,7 @@ class Pipeline:
         if os.environ['CIRCLE_BRANCH'] == 'master':
             os.environ['BUILD_ENV'] = 'prod'
         else:
-            os.environ['BUILD_ENV'] = os.environ['CIRCLE_BRANCH']
+            os.environ['BUILD_ENV'] = 'dev' if 'tests' in os.environ['CIRCLE_BRANCH'] else os.environ['CIRCLE_BRANCH']
 
         if 'DEPENDENCY_TAG' not in os.environ:
             os.environ['DEPENDENCY_TAG'] = 'latest'
