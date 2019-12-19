@@ -108,7 +108,7 @@ class Pipeline:
         print('with following kwargs:\n\t')
         pprint(self.build_kwargs)
 
-        if os.environ['BUILD_ENV'] == 'prod':
+        if os.environ['BUILD_ENV'] == 'prod' and self.is_circle:
             print('Please trigger the build manually for production environment.')
             return False
 
