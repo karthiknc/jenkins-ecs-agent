@@ -1,33 +1,34 @@
-FROM alpine:3.10
+FROM node:13.3.0-buster-slim
 
-# These are always installed. Notes:
-#   * dumb-init: a proper init system for containers, to reap zombie children
-#   * bash: For entrypoint, and debugging
-#   * ca-certificates: for SSL verification during Pip and easy_install
-#   * python: the binaries themselves
-ENV PACKAGES="\
-  bash \
-  ca-certificates \
-  python3 \
-  git \
-  openssh \
-  " PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1
 
-# Copy in the entrypoint script -- this installs prerequisites on container start.
 COPY pipeline.py prepare-creds.py /
 
-RUN echo "**** install Python ****" && \
-  apk add --no-cache $PACKAGES && \
-  if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi \
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+  libgtk2.0-0 \
+  libgtk-3-0 \
+  libnotify-dev \
+  libgconf-2-4 \
+  libnss3 \
+  libxss1 \
+  libasound2 \
+  libxtst6 \
+  xauth \
+  xvfb \
+  python3-pip \
+  ca-certificates \
+  git \
+  ssh \
+  && npm install -g cypress --unsafe-perm \
+  \
+  && if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi \
   \
   && if [[ ! -e /usr/bin/python ]];        then ln -sf /usr/bin/python3 /usr/bin/python; fi \
   && if [[ ! -e /usr/bin/python-config ]]; then ln -sf /usr/bin/python-config3 /usr/bin/python-config; fi \
-  && \
-  echo "**** install pip ****" && \
-  python3 -m ensurepip && \
-  rm -r /usr/lib/python*/ensurepip && \
-  pip3 install --no-cache --upgrade pip setuptools wheel && \
-  if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi \
+  \
+  && pip3 install --no-cache --upgrade setuptools wheel \
+  && if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi \
   && pip install boto3 \
   && mkdir ~/.aws \
   && touch ~/.aws/config \
@@ -38,4 +39,5 @@ RUN echo "**** install Python ****" && \
   && touch ~/.ssh/known_hosts \
   && ssh-keyscan github.com >> ~/.ssh/known_hosts \
   && mkdir /nu-ecsplatform \
-  && mv /pipeline.py /nu-ecsplatform/
+  && mv /pipeline.py /nu-ecsplatform/ \
+  && rm -rf /var/lib/apt/lists/*
