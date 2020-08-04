@@ -108,10 +108,6 @@ class Pipeline:
         print('with following kwargs:\n\t')
         pprint(self.build_kwargs)
 
-        if os.environ['BUILD_ENV'] == 'prod' and self.is_circle:
-            print('Please trigger the build manually for production environment.')
-            return False
-
         builder_run = self.client.start_build(**self.build_kwargs)
         build_id = builder_run['build']['id']
         print('Build ID: {}'.format(build_id))
