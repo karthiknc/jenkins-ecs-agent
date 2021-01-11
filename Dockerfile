@@ -1,4 +1,4 @@
-FROM node:13.3.0-buster-slim
+FROM node:14.15.4-buster-slim
 
 ENV PYTHONUNBUFFERED=1
 
