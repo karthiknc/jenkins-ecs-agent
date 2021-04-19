@@ -32,7 +32,7 @@ class Pipeline:
             self.codebuild_project = sys.argv[1]
 
     def prepare_circle_envs(self):
-        if os.environ['CIRCLE_BRANCH'] == 'master':
+        if os.environ['CIRCLE_BRANCH'] == 'master-built' or os.environ['CIRCLE_BRANCH'] == 'master':
             os.environ['BUILD_ENV'] = 'prod'
         else:
             os.environ['BUILD_ENV'] = 'dev' if 'tests' in os.environ['CIRCLE_BRANCH'] else os.environ['CIRCLE_BRANCH']
